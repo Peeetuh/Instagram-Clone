@@ -10,7 +10,7 @@ function Card() {
           <div className="row">
             <div className="col-6 d-flex">
               <img
-                className="p-2 profile-pic"
+                className="p-2 post-profile-pic"
                 alt="profile-pic"
                 src="https://images.unsplash.com/photo-1551847812-f815b31ae67c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTR8fHNlbGZpZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=400&q=60"
               />
