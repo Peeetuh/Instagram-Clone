@@ -1,10 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Login.css";
 import social from "../images/social-desktop.png";
 import socialMobile from "../images/social-mobile.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config";
+import Swal from "sweetalert2";
+import axios from "axios";
+import { useDispatch } from "react-redux";
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const loginHandler = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const requestData = { email, password };
+    axios
+      .post(`${API_BASE_URL}/login`, requestData)
+      .then((result) => {
+        if (result.status === 200) {
+          localStorage.setItem("token", result.data.result.token);
+          localStorage.setItem("user", JSON.stringify(result.data.result.user));
+          dispatch({ type: "LOGIN_SUCCESS", payload: result.data.result.user });
+          setLoading(false);
+          navigate("/myprofile");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+        });
+      });
+  };
+
   return (
     <div className="container login-container">
       <div className="row">
@@ -20,16 +57,27 @@ function Login() {
 
         <div className="col-md-5 col-sm-12">
           <div className="card shadow">
+            {loading ? (
+              <div className="col-md-12 mt-3 text-center">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
             <div className="card-body px-5">
               <h4 className="card-title text-center mt-3 fw-bold">Log In</h4>
-              <form>
+              <form onSubmit={(e) => loginHandler(e)}>
                 <input
                   type="email"
+                  onChange={(e) => setEmail(e.target.value)}
                   className="p-2 mt-4 mb-2 form-control input-bg"
                   placeholder="Phone Numbers, username, or email"
                 />
                 <input
                   type="password"
+                  onChange={(e) => setPassword(e.target.value)}
                   className="p-2 mb-2 form-control input-bg"
                   placeholder="Password"
                 />
