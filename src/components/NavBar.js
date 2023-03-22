@@ -8,8 +8,8 @@ function NavBar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const user = useSelector((state) => state.userReducer);
-  console.log(user);
+  const user = useSelector(state => state.userReducer);
+  // console.log(user);
   const logoutHandler = () => {
     //need to get userId from user
     localStorage.removeItem("token");
@@ -18,6 +18,7 @@ function NavBar() {
     navigate("/login");
   };
 
+  console.log(user);
   return (
     <div>
       <nav className="navbar bg-light shadow-sm">
@@ -31,26 +32,24 @@ function NavBar() {
               type="search"
               placeholder="Search"
             />
-            <a className="nav-link text-dark fs-5 searchIcon" href="#">
+            <NavLink className="nav-link text-dark fs-5 searchIcon" href="#">
               <i className="fa-solid fa-magnifying-glass"></i>
-            </a>
-            <a className="nav-link text-dark fs-5" href="#">
+            </NavLink>
+            <NavLink className="nav-link text-dark fs-5" to="/posts">
               <i className="fa-solid fa-house"></i>
-            </a>
-            {user ? (
-              <a className="nav-link text-dark fs-5" href="#">
+            </NavLink>
+            {user.user._id ? 
+              <a className="nav-link text-dark fs-5" href="/home">
                 <i className="fa-regular fa-heart"></i>
               </a>
-            ) : (
-              ""
-            )}
+             :  ""}
             <div className="dropdown">
-              {user ? (
+              {user.user._id ? (
                 <>
                   {" "}
                   <a
                     className="btn"
-                    href="#"
+                    href="/home" //subject to change (3)
                     role="button"
                     id="dropdownMenuLink"
                     data-bs-toggle="dropdown"
@@ -58,7 +57,7 @@ function NavBar() {
                     <img
                       className="navbar-profile-pic"
                       alt="profile-pic"
-                      src="https://images.unsplash.com/photo-1551847812-f815b31ae67c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTR8fHNlbGZpZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=400&q=60"
+                      src={user.user.profileImg}
                     />
                   </a>
                   <ul className="dropdown-menu">
@@ -70,7 +69,7 @@ function NavBar() {
                     <li>
                       <a
                         className="dropdown-item"
-                        href="#"
+                        href="/login" //subject to change
                         onClick={() => logoutHandler()}
                       >
                         Logout

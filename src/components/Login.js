@@ -57,15 +57,14 @@ function Login() {
 
         <div className="col-md-5 col-sm-12">
           <div className="card shadow">
-            {loading ? (
+        
+            {loading ? 
               <div className="col-md-12 mt-3 text-center">
                 <div className="spinner-border text-primary" role="status">
                   <span className="visually-hidden">Loading...</span>
                 </div>
               </div>
-            ) : (
-              ""
-            )}
+             : ""}
             <div className="card-body px-5">
               <h4 className="card-title text-center mt-3 fw-bold">Log In</h4>
               <form onSubmit={(e) => loginHandler(e)}>
