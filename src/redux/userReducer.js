@@ -1,5 +1,7 @@
 import { UPDATE_PROFILE_BIO } from "./updateBio";
 import { UPDATE_PROFILE_IMG } from "./updateProfileImg";
+import { FOLLOW_USER_SUCCESS } from "./updateFollow";
+import { UNFOLLOW_USER_SUCCESS } from "./unFollow";
 
 const initialState = {
   user: {},
@@ -30,6 +32,24 @@ export const userReducer = (state = initialState, action) => {
             bio: action.payload
           },
         };
+        case FOLLOW_USER_SUCCESS:
+          return{
+            ...state,
+            user:{
+              ...state.user,
+              following: [...state.user.following, action.payload]
+            },
+          }
+        case UNFOLLOW_USER_SUCCESS:
+          return{
+            ...state,
+            user:{
+              ...state.user,
+              following: state.user.following.filter(
+                (id) => id !== action.payload
+              )
+            },
+          }
         default:
           return initialState
   }

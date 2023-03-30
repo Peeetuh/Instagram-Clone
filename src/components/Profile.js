@@ -10,16 +10,23 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { updatedProfileImg } from "../redux/updateProfileImg";
+import { updatedBio } from "../redux/updateBio";
 
 function Profile() {
   const dispatch = useDispatch();
   const user = useSelector(state => state.userReducer);
   const navigate = useNavigate();
+  const [timeStamp, setTimeStamp] = useState('');
   const [image, setImage] = useState({ preview: "", data: "" });
+  
   const [profileImg, setProfileImg] = useState({ preview: "", data: ""});
   const [myAllPosts, setMyAllPosts] = useState([]);
   const [show, setShow] = useState(false);
-  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false); //
+  
+  const [showBioProfile, setShowBioProfile] = useState(false); //
+
+  const [bio, setBio] = useState("");
   const [caption, setCaption] = useState("");
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,8 +46,18 @@ function Profile() {
   const handlePostClose = () => setShowPost(false);
   const handlePostShow = () => setShowPost(true);
 
-  const handleEditProfileClose = () => setShowEditProfile(false);
+  const handleEditBioProfileClose = () => setShowBioProfile(false); //
+  const handleEditBioShow = () => setShowBioProfile(true);
+
+  const handleEditProfileClose = () => setShowEditProfile(false); //
   const handleEditPostShow = () => setShowEditProfile(true);
+
+  //  function addTimeStamp(){
+  //   const now = new Date();
+  //   const timeStampString = now.toLocaleString();
+  //   setTimeStamp(timeStampString);
+  // }
+  
 
   const handleFileSelect = (e) => {
     const img = {
@@ -126,7 +143,6 @@ function Profile() {
         title: "Post location is needed!",
       });
     } else {
-      setLoading(true);
       const imgResponse = await handleImgUpload();
       const request = {
         description: caption,
@@ -140,6 +156,15 @@ function Profile() {
         CONFIG_OBJ
       );
       setLoading(false);
+      Swal.fire({
+        icon: "success",
+        title: "Successfully Posted!",
+      });
+
+      const now = new Date();
+      const timeStampString = now.toLocaleString();
+      setTimeStamp(timeStampString);
+      
       if (postResponse.status === 201) {
         navigate("/posts");
       } else {
@@ -153,7 +178,6 @@ function Profile() {
 
   
   const editProfilePic = async () => {
-    
       const profileImgResponse = await handleImgUpload(); // uploads our image. // need to get our image.
       const request = await {  
         profileImg: `${API_BASE_URL}/files/${profileImgResponse.data.fileName}`,
@@ -166,8 +190,12 @@ function Profile() {
         request,
         CONFIG_OBJ
       );
-      // setLoading(false);
       if (updateProfileImg.status === 200) {
+        setShowEditProfile(false);
+        Swal.fire({
+          icon: "success",
+          title: "Successfully added new profile pic!",
+        });
         dispatch(updatedProfileImg(request.profileImg));
       } else {
         Swal.fire({
@@ -177,31 +205,50 @@ function Profile() {
       }
   };
 
+  const editBio = async () => {
+    
+    const request = {  
+      bio: bio,
+    };
+
+    const updateBio = await axios.put(
+      `${API_BASE_URL}/users/:id/bio`,
+      request,
+      CONFIG_OBJ
+    );
+
+    
+    setBio(request.bio); // sets our profileImg 
+    // api call to update the profileImg.
+    
+    // setLoading(false);
+    if (updateBio.status === 200) {
+      setShowBioProfile(false);
+      Swal.fire({
+        icon: "success",
+        title: "Successfully added bio!",
+      });
+      dispatch(updatedBio(request.bio));
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error occured editting profile picture",
+      });
+    }
+};
+  
+
   useEffect(() => {
     getMyPosts();
   }, []);
 
 
-  // {myAllPosts.map((post) => { 
-  //   return (
-  //     <div className="col-md-4 col-sm-12" key={post._id}>
-  //       <div className="card" onClick={handleShow}>
-  //       <img
-  //       onClick={() => showDetail(post)}
-  //       src={post.image}
-  //       className="card-img-top"
-  //       alt={post.description}
-  //       />
-  //     </div>
-  // </div>
-  //   );
-  // })}
 
-/*
-
-*/
-
-// console.log(user);
+let followingArr = user.user.following;
+let followerArr = user.user.followers;
+// let followingArr = user.user.follo
+//   console.log(followingArr.length);
+// console.log(user.user.following);ß
   return (
     <div className="container shadow mt-3 p-4">
       <div className="row">
@@ -213,9 +260,8 @@ function Profile() {
           />
           <p className="ms-3 fs-5 fw-bold">{user.user.email}</p>
           <p className="ms-3 fs-5">{user.user.fullName}</p>
-          <p className="ms-3 fs-5">UI/UX Designer @john | Follow @{user.user.fullName}</p>
           <p className="ms-3 fs-5">
-            My portfolio on <a href="#">www.portfolio.com/john</a>
+            {user.user.bio}
           </p>
         </div>
         <div className="col-md-6 d-flex flex-column justify-content-between mt-3">
@@ -225,20 +271,45 @@ function Profile() {
               <p>Posts</p>
             </div>
             <div className="count-section px-4 px-md-5 text-center fw-bold">
-              <h4>0</h4>
+              <h4>{followerArr.length}</h4>
               <p>Followers</p>
             </div>
             <div className="ps-md-5 ps-4 text-center fw-bold">
-              <h4>0</h4>
+              <h4>{followingArr.length}</h4>
               <p>Following</p>
             </div>
           </div>
           <div className="mx-auto mt-md-0 mt-3">
-            <button 
-            className="custom-btn custom-btn-white me-md-3"
-            onClick={handleEditPostShow}>
-              <span className="fs-6">Edit Profile</span>
+            
+          <a
+                    className="btn"
+                    href="/home" //subject to change (3)
+                    role="button"
+                    id="dropdownMenuLink"
+                    data-bs-toggle="dropdown"
+                  >
+                    <button 
+                    className="custom-btn custom-btn-white me-md-3">
+                  <span className="fs-6">Edit Profile</span>
             </button>
+                  </a>
+                  <ul className="dropdown-menu">
+                    <li>
+                    <button 
+                  className="custom-btn custom-btn-white me-md-3"
+                  onClick={handleEditPostShow}>
+                   <span className="fs-6">Edit Profile Pic</span>
+            </button>
+                    </li>
+                    <li>
+                    <button 
+                  className="custom-btn custom-btn-white me-md-3"
+                  onClick={handleEditBioShow}>
+                   <span className="fs-6">Edit Profile Bio</span>
+            </button>
+                    </li>
+                  </ul>
+
             <button
               className="custom-btn custom-btn-white"
               onClick={handlePostShow}
@@ -259,6 +330,7 @@ function Profile() {
             <div className="col-md-4 col-sm-12" key={post._id}>
               <div className="card" onClick={handleShow}>
               <img
+              style={{minHeight: "270px"}}
               onClick={() => showDetail(post)}
               src={post.image}
               className="card-img-top"
@@ -268,166 +340,11 @@ function Profile() {
         </div>
           );
         })}
-        
       </div>
-    
-
-      {/* <Modal show={show} onHide={handleClose} size="lg">
-        <Modal.Header closeButton>
-          <span className="fw-bold fs-5">Upload Post</span>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="row">
-            <div className="col-md-6">
-              <div>
-                <div
-                  id="carouselExampleIndicators"
-                  className="carousel slide"
-                  data-bs-ride="carousel"
-                >
-                  <div className="carousel-indicators">
-                    <button
-                      type="button"
-                      data-bs-target="#carouselExampleIndicators"
-                      data-bs-slide-to="0"
-                      className="active"
-                      aria-current="true"
-                      aria-label="Slide 1"
-                    ></button>
-                    <button
-                      type="button"
-                      data-bs-target="#carouselExampleIndicators"
-                      data-bs-slide-to="1"
-                      aria-label="Slide 2"
-                    ></button>
-                    <button
-                      type="button"
-                      data-bs-target="#carouselExampleIndicators"
-                      data-bs-slide-to="2"
-                      aria-label="Slide 3"
-                    ></button>
-                  </div>
-                  <div className="carousel-inner">
-                    <div className="carousel-item active">
-                      <img
-                        src={postDetail.image}
-                        alt="..."
-                      />
-                    </div>
-                    <div className="carousel-item">
-                      <img
-                        src="https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1228&q=80"
-                        className="d-block w-100"
-                        alt="..."
-                      />
-                    </div>
-                    <div className="carousel-item">
-                      <img
-                        src="https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1228&q=80"
-                        className="d-block w-100"
-                        alt="..."
-                      />
-                    </div>
-                  </div>
-                  <button
-                    className="carousel-control-prev"
-                    type="button"
-                    data-bs-target="#carouselExampleIndicators"
-                    data-bs-slide="prev"
-                  >
-                    <span
-                      className="carousel-control-prev-icon"
-                      aria-hidden="true"
-                    ></span>
-                    <span className="visually-hidden">Previous</span>
-                  </button>
-                  <button
-                    className="carousel-control-next"
-                    type="button"
-                    data-bs-target="#carouselExampleIndicators"
-                    data-bs-slide="next"
-                  >
-                    <span
-                      className="carousel-control-next-icon"
-                      aria-hidden="true"
-                    ></span>
-                    <span className="visually-hidden">Next</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="row">
-                <div className="col-6 d-flex">
-                  <img
-                    className="p-2 post-profile-pic"
-                    alt="profile-pic"
-                    src="https://images.unsplash.com/photo-1551847812-f815b31ae67c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTR8fHNlbGZpZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=400&q=60"
-                  />
-                  <div className="mt-2 ms-2">
-                    <p className="fs-6 fw-bold">{postDetail.location}</p>
-                    <p className="location">{postDetail.description}</p>
-                  </div>
-                  <div className="dropdown ms-5">
-                    <a
-                      className="btn"
-                      href="#"
-                      role="button"
-                      id="dropdownMenuLink"
-                      data-bs-toggle="dropdown"
-                    >
-                      <img alt="more action" src={moreAction} />
-                    </a>
-
-                    <ul
-                      className="dropdown-menu"
-                      aria-labelledby="dropdownMenuLink"
-                    >
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          <i className="fa-regular fa-pen-to-square px-2"></i>
-                          Edit Post
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" onClick={() => deletePost(postDetail._id)}>
-                          <i className="fa-sharp fa-solid fa-trash px-2"></i>
-                          Delete
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-12">
-                  <span className="p-2 text-muted">2 Hours Ago</span>
-                </div>
-              </div>
-              <div className="row mt-2">
-                <div className="col-12 ms-2">
-                  <p>Lorem Ipsum</p>
-                </div>
-              </div>
-              <div className="row my-3">
-                <div className="col-6 d-flex">
-                  <i className="ps-2 fs-4 fa-regular fa-heart"></i>
-                  <i className="ps-3 fs-4 fa-regular fa-comment"></i>
-                  <i className="ps-3 fs-4 fa-solid fa-location-arrow"></i>
-                </div>
-                <div className="col-12 mt-3 ms-2">
-                  <span className="fs-6 fw-bold"> 200 likes</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Modal.Body>
-      </Modal> */}
-
       
       <Modal show={showEditProfile} onHide={handleEditProfileClose} size="lg" centered>
         <Modal.Header closeButton>
-          <span className="fw-bold fs-5">Edit Profile</span>
+          <span className="fw-bold fs-5">Edit Profile Picture</span>
         </Modal.Header>
         <Modal.Body>
           <div className="row">
@@ -455,32 +372,8 @@ function Profile() {
             </div>
             <div className="col-md-6 col-sm-12 d-flex flex-column justify-content-between">
               <div className="row">
-                <div className="col-sm-12 mb-3">
-                  <div className="form-floating">
-                    <textarea
-                      onChange={(e) => setCaption(e.target.value)}
-                      className="form-control"
-                      placeholder="Add Caption"
-                      id="floatingTextarea"
-                    ></textarea>
-                    <label for="floatingTextarea">Add Caption</label>
-                  </div>
-                </div>
-                <div className="col-sm-12">
-                  <div className="form-floating mb-3">
-                    <input
-                      onChange={(e) => setLocation(e.target.value)}
-                      type="text"
-                      className="form-control"
-                      id="floatingInput"
-                      placeholder="Add Location"
-                    />
-                    <label for="floatingInput">
-                      <i className="fa-solid fa-location-pin pe-2"></i>Add
-                      Location
-                    </label>
-                  </div>
-                </div>
+                
+                
               </div>
               <div className="row">
                 <div className="col-sm-12">
@@ -498,6 +391,48 @@ function Profile() {
           </div>
         </Modal.Body>
       </Modal>
+
+      <Modal show={showBioProfile} onHide={handleEditBioProfileClose} size="lg" centered>
+        <Modal.Header closeButton>
+          <span className="fw-bold fs-5">Update Bio</span>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="row">
+            <div className="col-md-6 col-sm-12 d-flex flex-column justify-content-between">
+              <div className="row">
+                <div className="col-sm-12 mb-3">
+                  <div className="form-floating">
+                    <textarea
+                      onChange={(e) => setBio(e.target.value)}
+                      className="form-control"
+                      placeholder="Add Bio"
+                      id="floatingTextarea"
+                      style={{height: "150px"}}
+                    ></textarea>
+                    <label for="floatingTextarea">Add Bio</label>
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-sm-12">
+                  <div className="col-md-12 mt-3 text-center">
+                    {/* <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div> */}
+                  </div>
+                  <button
+                    onClick={() => editBio()}
+                    className="custom-btn custom-btn-pink float-end"
+                  >
+                    <span className="fs-6 fw-600">Edit Bio</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
+      
 
       <Modal show={showPost} onHide={handlePostClose} size="lg" centered>
         <Modal.Header closeButton>
@@ -558,7 +493,7 @@ function Profile() {
               </div>
               <div className="row">
                 <div className="col-sm-12">
-                  {loading ? (
+                  {/* {loading ? (
                     <div className="col-md-12 mt-3 text-center">
                       <div
                         className="spinner-border text-primary"
@@ -569,12 +504,12 @@ function Profile() {
                     </div>
                   ) : (
                     ""
-                  )}
-                  <div className="col-md-12 mt-3 text-center">
+                  )} */}
+                  {/* <div className="col-md-12 mt-3 text-center">
                     <div className="spinner-border text-primary" role="status">
                       <span className="visually-hidden">Loading...</span>
                     </div>
-                  </div>
+                  </div> */}
                   <button
                     onClick={() => addPost()}
                     className="custom-btn custom-btn-pink float-end"
@@ -594,3 +529,5 @@ function Profile() {
 export default Profile;
 
 //margin bottom 3...
+
+
