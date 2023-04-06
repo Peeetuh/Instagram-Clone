@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { updatedProfileImg } from "../redux/updateProfileImg";
 import { updatedBio } from "../redux/updateBio";
+import Footer from "./Footer";
 
 function Profile() {
   const dispatch = useDispatch();
@@ -250,6 +251,7 @@ let followerArr = user.user.followers;
 //   console.log(followingArr.length);
 // console.log(user.user.following);ß
   return (
+    <div>
     <div className="container shadow mt-3 p-4">
       <div className="row">
         <div className="col-md-6 d-flex flex-column">
@@ -522,6 +524,8 @@ let followerArr = user.user.followers;
           </div>
         </Modal.Body>
       </Modal>
+    </div>
+    <Footer />
     </div>
   );
 }

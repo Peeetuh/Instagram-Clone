@@ -7,6 +7,7 @@ import { API_BASE_URL } from "../config";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useDispatch } from "react-redux";
+import Footer from "./Footer";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -43,6 +44,8 @@ function Login() {
   };
 
   return (
+    <div>
+    <section className="login-section">
     <div className="container login-container">
       <div className="row">
         <div className="col-md-7 col-sm-12 d-flex justify-content-center align-items-center">
@@ -103,6 +106,9 @@ function Login() {
           </div>
         </div>
       </div>
+    </div>
+    </section>
+    <Footer />
     </div>
   );
 }

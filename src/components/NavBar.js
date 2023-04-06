@@ -21,9 +21,9 @@ function NavBar() {
   console.log(user);
   return (
     <div>
-      <nav className="navbar bg-light shadow-sm">
+      <nav className="navbar bg-white shadow-sm">
         <div className="container-fluid">
-          <NavLink className="navbar-brand ms-5" to="/">
+          <NavLink className="navbar-brand ms-5" to="/posts">
             <img alt="logo" src={logo} height="45px" />
           </NavLink>
           <form className="d-flex me-md-5" role="search">
@@ -38,11 +38,11 @@ function NavBar() {
             <NavLink className="nav-link text-dark fs-5" to="/posts">
               <i className="fa-solid fa-house"></i>
             </NavLink>
-            {user.user._id ? 
+            {/* {user.user._id ? 
               <a className="nav-link text-dark fs-5" href="/home">
                 <i className="fa-regular fa-heart"></i>
               </a>
-             :  ""}
+             :  ""} */}
             <div className="dropdown">
               {user.user._id ? (
                 <>

@@ -3,6 +3,8 @@ import Card from "./Card";
 import axios from "axios";
 import { API_BASE_URL } from "../config";
 import Swal from "sweetalert2";
+import "./PostOverview.css";
+import Footer from "./Footer";
 
 function PostOverview() {
   const [allPosts, setAllPosts] = useState([]);
@@ -39,6 +41,7 @@ function PostOverview() {
     getAllPosts();
   }, []);
   return (
+    <div>
     <div className="container mt-md-5 mt-3">
       <div className="row">
         {allPosts.map((post) => {
@@ -49,6 +52,8 @@ function PostOverview() {
           );
         })}
       </div>
+    </div>
+    <Footer />
     </div>
   );
 }

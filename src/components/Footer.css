@@ -1,0 +1,21 @@
+.footer-div {
+    background-color: white;
+    min-height: 20vh;
+    box-shadow: 10px 10px 10px 5px;
+}
+
+.footer-div-2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 50px;
+}
+
+.footer-a {
+    margin-top: 100px;
+}
+
+/* .icons {
+    height: 50px;
+    width: 50px;
+} */
